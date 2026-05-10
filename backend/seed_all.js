@@ -1,3 +1,4 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 
 const Developer = require('./models/Developer');
@@ -21,7 +22,7 @@ const Risk = require('./models/Risk');
 const Milestone = require('./models/Milestone');
 const CodeMetrics = require('./models/CodeMetrics');
 
-mongoose.connect('mongodb+srv://bht9357_db_user:EGi9D1vJbqGCskhR@cluster0.ea9jql3.mongodb.net/devtrack?appName=Cluster0')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/devtrack')
   .then(() => {
     console.log('Connected to MongoDB for global seeding');
     seedAll();

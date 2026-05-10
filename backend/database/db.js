@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://bht9357_db_user:EGi9D1vJbqGCskhR@cluster0.ea9jql3.mongodb.net/devtrack?appName=Cluster0';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/devtrack';
 
 mongoose.connect(MONGODB_URI)
   .then(() => {
