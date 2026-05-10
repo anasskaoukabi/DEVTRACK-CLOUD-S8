@@ -50,6 +50,7 @@ router.post('/login', async (req, res) => {
 
     res.json({ token, user: devObj });
   } catch (error) {
+    console.error('Login Error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
