@@ -24,6 +24,7 @@ import NotificationsPage from './pages/NotificationsPage';
 import PlanningPokerPage from './pages/PlanningPokerPage';
 import ResourcesPage from './pages/ResourcesPage';
 import TestPlansPage from './pages/TestPlansPage';
+import TestPlanDetailsPage from './pages/TestPlanDetailsPage';
 import MetricsDashboardPage from './pages/MetricsDashboardPage';
 import CommandPalette from './components/ui/CommandPalette';
 
@@ -76,6 +77,7 @@ function AppContent() {
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/resources" element={<ResourcesPage />} />
         <Route path="/test-plans" element={<TestPlansPage />} />
+        <Route path="/test-plans/:id" element={<TestPlanDetailsPage />} />
         <Route path="/risks" element={<RisksPage />} />
         <Route path="/milestones" element={<MilestonesPage />} />
         <Route path="/metrics" element={<MetricsDashboardPage />} />

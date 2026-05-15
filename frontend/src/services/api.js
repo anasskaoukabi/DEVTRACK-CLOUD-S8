@@ -145,6 +145,25 @@ export const documentsApi = {
     document.body.removeChild(a); URL.revokeObjectURL(url);
   },
 };
+
+export const testPlansApi = {
+  getAll: (params) => api.get('/test-plans', { params }).then(r => r.data),
+  getOne: (id) => api.get(`/test-plans/${id}`).then(r => r.data),
+  create: (data) => api.post('/test-plans', data).then(r => r.data),
+  update: (id, data) => api.put(`/test-plans/${id}`, data).then(r => r.data),
+  delete: (id) => api.delete(`/test-plans/${id}`).then(r => r.data),
+  
+  getCases: (planId) => api.get(`/test-plans/${planId}/cases`).then(r => r.data),
+  createCase: (planId, data) => api.post(`/test-plans/${planId}/cases`, data).then(r => r.data),
+  updateCase: (planId, caseId, data) => api.put(`/test-plans/${planId}/cases/${caseId}`, data).then(r => r.data),
+  deleteCase: (planId, caseId) => api.delete(`/test-plans/${planId}/cases/${caseId}`).then(r => r.data),
+  
+  getCycles: (planId) => api.get(`/test-plans/${planId}/cycles`).then(r => r.data),
+  createCycle: (planId, data) => api.post(`/test-plans/${planId}/cycles`, data).then(r => r.data),
+  updateCycleStatus: (planId, cycleId, status) => api.patch(`/test-plans/${planId}/cycles/${cycleId}/status`, { status }).then(r => r.data),
+  executeCase: (planId, cycleId, execId, data) => api.patch(`/test-plans/${planId}/cycles/${cycleId}/execute/${execId}`, data).then(r => r.data),
+  deleteCycle: (planId, cycleId) => api.delete(`/test-plans/${planId}/cycles/${cycleId}`).then(r => r.data),
+};
 // Generic CSV download helper
 export const downloadCSV = (blob, filename) => {
   const url = URL.createObjectURL(new Blob([blob], { type: 'text/csv;charset=utf-8;' }));
