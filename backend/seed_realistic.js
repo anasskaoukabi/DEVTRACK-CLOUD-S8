@@ -22,6 +22,12 @@ const Risk = require('./models/Risk');
 const Milestone = require('./models/Milestone');
 const CodeMetrics = require('./models/CodeMetrics');
 
+// Nouveaux modèles pour enrichissement
+const ProjectBudget = require('./models/ProjectBudget');
+const AuditLog = require('./models/AuditLog');
+const Notification = require('./models/Notification');
+const DocumentEditor = require('./models/DocumentEditor');
+
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/devtrack')
   .then(() => {
     console.log('🔗 Connected to MongoDB. Starting G2I ODOO 19 SEEDING...');
@@ -40,7 +46,7 @@ const daysFromNow = (days) => new Date(today.getTime() + days * 86400000);
 async function seedRealistic() {
   try {
     console.log('🧹 Clearing existing data...');
-    const models = [Project, Sprint, Task, Bug, TimeLog, Team, Meeting, Tag, TestPlan, TestCase, TestCycle, ReviewChecklist, CodeReview, Risk, Milestone, CodeMetrics];
+    const models = [Project, Sprint, Task, Bug, TimeLog, Team, Meeting, Tag, TestPlan, TestCase, TestCycle, ReviewChecklist, CodeReview, Risk, Milestone, CodeMetrics, ProjectBudget, AuditLog, Notification, DocumentEditor];
     for (const model of models) await model.deleteMany({});
 
     console.log('👥 Loading/Creating Developers...');
@@ -361,6 +367,74 @@ async function seedRealistic() {
     await Meeting.create([
       { project_id: p2._id, organizer_id: sm._id, title: 'Sprint 4 Planning', notes: 'Planification des tests de charge et préparation de la phase pilote.', date: daysAgo(1), duration_min: 120, status: 'DONE', attendees: [sm._id, po._id, admin._id, javaDev._id, secQA._id] },
       { project_id: p2._id, organizer_id: sm._id, title: 'Point Synchronisation CMI', notes: 'Discussion avec les équipes CMI concernant les timeouts réseau en production.', date: daysFromNow(2), duration_min: 60, status: 'SCHEDULED', attendees: [admin._id, javaDev._id] }
+    ]);
+
+    // ── BUDGETS ──
+    await ProjectBudget.create([
+      {
+        project_id: p1._id,
+        total_budget: 150000,
+        currency: 'MAD',
+        developer_rates: [
+          { developer_id: admin._id, hourly_rate: 500 },
+          { developer_id: dev1._id, hourly_rate: 350 }
+        ],
+        expenses: [
+          { label: 'Licence Odoo Enterprise', amount: 15000, category: 'OUTILS', note: 'Paiement annuel' },
+          { label: 'Serveur AWS (Staging)', amount: 2500, category: 'INFRASTRUCTURE' }
+        ],
+        created_by: admin._id
+      },
+      {
+        project_id: p2._id,
+        total_budget: 350000,
+        currency: 'MAD',
+        developer_rates: [
+          { developer_id: admin._id, hourly_rate: 600 },
+          { developer_id: javaDev._id, hourly_rate: 450 },
+          { developer_id: uxDev._id, hourly_rate: 400 }
+        ],
+        expenses: [
+          { label: 'Audit Sécurité CNDP', amount: 45000, category: 'AUTRE', note: 'Cabinet externe' },
+          { label: 'Frais API CMI', amount: 5000, category: 'OUTILS' }
+        ],
+        created_by: admin._id
+      }
+    ]);
+
+    // ── NOTIFICATIONS ──
+    await Notification.create([
+      { recipient_id: admin._id, type: 'BUG_CRITICAL', message: 'Nouveau bug critique détecté sur le Dashboard Owl !', entity_type: 'bug', entity_id: p1._id },
+      { recipient_id: javaDev._id, type: 'TASK_ASSIGNED', message: "Une nouvelle tâche d'optimisation BD vous a été assignée.", entity_type: 'task', entity_id: p2._id },
+      { recipient_id: uxDev._id, type: 'MENTION', message: '@ux Merci de valider les dernières maquettes du tunnel de paiement.', entity_type: 'task', entity_id: p2._id }
+    ]);
+
+    // ── AUDIT LOGS ──
+    await AuditLog.create([
+      { user_id: admin._id, user_name: 'Tech Lead (Admin)', action: 'CREATE', entity_type: 'project', entity_id: p1._id, entity_name: p1.name, timestamp: daysAgo(90) },
+      { user_id: admin._id, user_name: 'Tech Lead (Admin)', action: 'CREATE', entity_type: 'project', entity_id: p2._id, entity_name: p2.name, timestamp: daysAgo(45) },
+      { user_id: sm._id, user_name: 'Scrum Master', action: 'UPDATE', entity_type: 'task', entity_id: createdEgovTasks[0]._id, entity_name: createdEgovTasks[0].title, changes: { status: { before: 'TODO', after: 'DONE' } }, timestamp: daysAgo(35) }
+    ]);
+
+    // ── DOCUMENTS ──
+    await DocumentEditor.create([
+      {
+        type: 'cahier-des-charges',
+        title: 'Cahier des Charges - Portail e-Gov TGR',
+        project_id: p2._id,
+        content: { version: '1.0', priority: 'High' },
+        html: '<h1>Cahier des Charges</h1><p>Ce document définit les spécifications fonctionnelles pour le paiement des taxes...</p>',
+        created_by: admin._id,
+        is_public: true
+      },
+      {
+        type: 'fiche-technique',
+        title: 'Architecture Technique - Intégration CMI',
+        project_id: p2._id,
+        content: { architecture: 'Microservices', db: 'PostgreSQL' },
+        html: "<h1>Architecture Technique</h1><p>Détails de l'intégration avec la passerelle CMI via SpringBoot API Gateway...</p>",
+        created_by: javaDev._id
+      }
     ]);
 
     console.log('\n🎉 MEGA SEEDING (GITHUB CONVERSATION MAPPING & E-GOV MAROC) TERMINÉ AVEC SUCCÈS !');
