@@ -58,6 +58,8 @@ function PlanForm({ initial, projects, sprints, developers, onSave, onCancel }) 
       ...form,
       sprint_id: form.sprint_id || null,
       responsible_id: form.responsible_id || null,
+      start_date: form.start_date || null,
+      end_date: form.end_date || null,
       objectives: form.objectives.split('\n').filter(Boolean),
       entry_criteria: form.entry_criteria.split('\n').filter(Boolean),
       exit_criteria: form.exit_criteria.split('\n').filter(Boolean),
