@@ -91,7 +91,7 @@ function AccountForm({ initial, onSubmit, onCancel, mode = 'create' }) {
         <Input label="Nom complet" required value={form.name}
           onChange={e => set('name', e.target.value)} placeholder="ex : Sarah Martin" />
         <Input label="Adresse email" required type="email" value={form.email}
-          onChange={e => set('email', e.target.value)} placeholder="sarah@devtrack.io" />
+          onChange={e => set('email', e.target.value)} placeholder="admin@g2i.io" />
       </div>
 
       {mode === 'create' && (

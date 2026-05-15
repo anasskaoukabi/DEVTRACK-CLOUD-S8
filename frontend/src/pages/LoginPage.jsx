@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('sarah@devtrack.io');
+  const [email, setEmail] = useState('admin@g2i.io');
   const [password, setPassword] = useState('password123');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -79,7 +79,7 @@ export default function LoginPage() {
           
           <div className="mt-6 text-xs text-center text-slate-500">
             Demo Accounts:<br/>
-            Admin: sarah@devtrack.io | PO: pierre@devtrack.io<br/>
+            Admin: admin@g2i.io | PO: po@g2i.io<br/>
             Password: password123
           </div>
         </div>
