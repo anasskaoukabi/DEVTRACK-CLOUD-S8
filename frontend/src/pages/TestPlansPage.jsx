@@ -56,6 +56,8 @@ function PlanForm({ initial, projects, sprints, developers, onSave, onCancel }) 
     e.preventDefault();
     onSave({
       ...form,
+      sprint_id: form.sprint_id || null,
+      responsible_id: form.responsible_id || null,
       objectives: form.objectives.split('\n').filter(Boolean),
       entry_criteria: form.entry_criteria.split('\n').filter(Boolean),
       exit_criteria: form.exit_criteria.split('\n').filter(Boolean),
