@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DevTrack — Présentation du Projet</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* ── Navigation ── */
+    .nav {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid #e2e8f0;
+      border-radius: 40px;
+      padding: 8px 18px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+    .nav button {
+      background: none; border: none; cursor: pointer;
+      font-size: 18px; color: #64748b; transition: color .2s;
+      display: flex; align-items: center; padding: 4px 8px;
+    }
+    .nav button:hover { color: #6366f1; }
+    .nav .counter {
+      font-size: 13px; color: #94a3b8; font-weight: 600;
+      min-width: 54px; text-align: center;
+    }
+    .nav .dots {
+      display: flex; gap: 5px; align-items: center;
+    }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #e2e8f0; cursor: pointer; transition: all .2s;
+    }
+    .dot.active { background: #6366f1; transform: scale(1.3); }
+
+    /* ── Slide wrapper ── */
+    .slide-wrapper {
+      width: 100%;
+      max-width: 960px;
+      perspective: 1000px;
+      margin-top: 60px;
+    }
+
+    .slide {
+      display: none;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+      overflow: hidden;
+      min-height: 540px;
+      animation: slideIn .35s ease;
+    }
+    .slide.active { display: flex; flex-direction: column; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Accent bar ── */
+    .accent-bar {
+      height: 5px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+    }
+
+    /* ── Slide header ── */
+    .slide-header {
+      padding: 36px 48px 0;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .slide-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .slide-header h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1e293b;
+      line-height: 1.3;
+    }
+    .slide-header p {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    /* ── Body ── */
+    .slide-body {
+      padding: 28px 48px 40px;
+      flex: 1;
+    }
+
+    /* ── Tags ── */
+    .tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .3px;
+    }
+
+    /* ── Grid helpers ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+    /* ── Cards ── */
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 18px 20px;
+    }
+    .card h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 10px;
+    }
+
+    /* ── Pills / chips ── */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12.5px;
+      font-weight: 500;
+      margin: 3px;
+    }
+    .pill-purple { background: #ede9fe; color: #6d28d9; }
+    .pill-blue   { background: #dbeafe; color: #1d4ed8; }
+    .pill-green  { background: #dcfce7; color: #15803d; }
+    .pill-orange { background: #ffedd5; color: #c2410c; }
+    .pill-pink   { background: #fce7f3; color: #9d174d; }
+    .pill-slate  { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+    .pill-teal   { background: #ccfbf1; color: #0f766e; }
+
+    /* ── Feature rows ── */
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .feature-item:last-child { border-bottom: none; }
+    .feature-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; flex-shrink: 0;
+    }
+    .feature-text h4 { font-size: 14px; font-weight: 600; color: #1e293b; }
+    .feature-text p  { font-size: 12.5px; color: #64748b; margin-top: 2px; line-height: 1.5; }
+
+    /* ── Stat boxes ── */
+    .stat-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+    }
+    .stat-box .num {
+      font-size: 36px;
+      font-weight: 800;
+      color: #6366f1;
+      line-height: 1;
+    }
+    .stat-box .label {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 500;
+      margin-top: 6px;
+    }
+
+    /* ── Architecture diagram ── */
+    .arch-box {
+      border: 2px solid;
+      border-radius: 12px;
+      padding: 14px 16px;
+      text-align: center;
+    }
+    .arch-box h4 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+    .arch-box p  { font-size: 11.5px; color: #64748b; line-height: 1.5; }
+
+    .arch-arrow {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: #94a3b8;
+    }
+
+    /* ── Role badges ── */
+    .role-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      border-radius: 10px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+    .role-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .role-item span { font-size: 13px; font-weight: 600; color: #1e293b; }
+    .role-item small { font-size: 11px; color: #94a3b8; margin-left: auto; }
+
+    /* ── Cover slide specific ── */
+    #slide-1 .slide-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 60px;
+    }
+    .cover-logo {
+      width: 90px; height: 90px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 24px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 42px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(99,102,241,0.3);
+    }
+    .cover-title {
+      font-size: 52px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+    .cover-subtitle {
+      font-size: 18px;
+      color: #64748b;
+      font-weight: 400;
+      margin-bottom: 32px;
+    }
+    .cover-tags {
+      display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+    }
+
+    /* ── Conclusion ── */
+    .conclusion-highlight {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+      border-radius: 16px;
+      padding: 24px 28px;
+      color: white;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .conclusion-highlight h3 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .conclusion-highlight p  { font-size: 14px; opacity: .9; }
+
+    /* ── Section title ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 16px;
+    }
+
+    /* ── Progress bar ── */
+    .progress-bar {
+      width: 100%; height: 4px;
+      background: #e2e8f0;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+      border-radius: 2px;
+      transition: width .4s ease;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<div class="nav">
+  <button onclick="prevSlide()">&#8592;</button>
+  <div class="dots" id="dots"></div>
+  <span class="counter" id="counter">1 / 10</span>
+  <button onclick="nextSlide()">&#8594;</button>
+</div>
+
+<div class="slide-wrapper">
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 1 — COVER
+  ══════════════════════════════════════════ -->
+  <div class="slide active" id="slide-1">
+    <div class="accent-bar"></div>
+    <div class="slide-body">
+      <div class="cover-logo">📋</div>
+      <div class="cover-title">DevTrack</div>
+      <div class="cover-subtitle">Plateforme de gestion de projets Agile</div>
+      <div class="cover-tags">
+        <span class="pill pill-purple">⚛️ React 18</span>
+        <span class="pill pill-blue">🟢 Node.js</span>
+        <span class="pill pill-green">🍃 MongoDB</span>
+        <span class="pill pill-orange">🔌 Socket.io</span>
+        <span class="pill pill-pink">🔐 JWT Auth</span>
+        <span class="pill pill-teal">📊 Recharts</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 2 — OBJECTIF
+  ══════════════════════════════════════════ -->
+  <div class="slide" id="slide-2">
+    <div class="accent-bar"></div>
+    <div class="slide-header">
+      <div class="slide-icon" style="background:#ede9fe;">🎯</div>
+      <div>
+        <h2>Objectif du Projet</h2>
+        <p>Slide 2 / 10</p>
+      </div>
+    </div>
+    <div class="slide-body">
+      <div class="conclusion-highlight" style="margin-bottom:24px;">
+        <h3>Centraliser tout le cycle de développement logiciel</h3>
+        <p>Remplacer une multitude d'outils disparates par une seule plateforme cohérente</p>
+      </div>
+      <div class="grid-2">
+        <div class="feature-item" style="padding:12px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0;">
+          <div class="feature-icon" style="background:#dbeafe;">📐</div>
+          <div class="feature-text">
+            <h4>Méthodologie Agile / Scrum</h4>
+            <p>Gérer des sprints, du backlog et des story points de manière native</p>
+          </div>
+        </div>
+        <div class="feature-item" style="padding:12px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0;">
+          <div class="feature-icon" style="background:#dcfce7;">👥</div>
+          <div class="feature-text">
+            <h4>Collaboration d'équipe</h4>
+            <p>Réunions, commentaires, @mentions et notifications en temps réel</p>
+          </div>
+        </div>
+        <div class="feature-item" style="padding:12px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0;">
+          <div class="feature-icon" style="background:#ffedd5;">🐛</div>
+          <div class="feature-text">
+            <h4>Suivi qualité intégré</h4>
+            <p>Plans de test, code review, métriques de qualité et suivi des bugs</p>
+          </div>
+        </div>
+        <div class="feature-item" style="padding:12px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0;">
+          <div class="feature-icon" style="background:#fce7f3;">📊</div>
+          <div class="feature-text">
+            <h4>Reporting & Analytiques</h4>
+            <p>Tableaux de bord, exports CSV/PDF et visualisations avancées</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 3 — ARCHITECTURE GLOBALE
+  ══════════════════════════════════════════ -->
+  <div class="slide" id="slide-3">
+    <div class="accent-bar"></div>
+    <div class="slide-header">
+      <div class="slide-icon" style="background:#dbeafe;">🏗️</div>
+      <div>
+        <h2>Architecture Globale</h2>
+        <p>Slide 3 / 10 — Architecture client-serveur découplée</p>
+      </div>
+    </div>
+    <div class="slide-body">
+      <div style="display:grid; grid-template-columns: 1fr 40px 1fr 40px 1fr; gap:8px; align-items:center; margin-bottom:20px;">
+        <div class="arch-box" style="border-color:#c7d2fe; background:#f0f0ff;">
+          <h4 style="color:#4f46e5;">⚛️ Frontend</h4>
+          <p>React 18 + Vite<br/>Tailwind CSS<br/>Port : 3000</p>
+        </div>
+        <div class="arch-arrow">↔</div>
+        <div class="arch-box" style="border-color:#bbf7d0; background:#f0fff4;">
+          <h4 style="color:#15803d;">🟢 Backend API</h4>
+          <p>Express.js + Socket.io<br/>28 routes REST<br/>Port : 3001</p>
+        </div>
+        <div class="arch-arrow">↔</div>
+        <div class="arch-box" style="border-color:#fed7aa; background:#fff7ed;">
+          <h4 style="color:#c2410c;">🍃 MongoDB</h4>
+          <p>Mongoose ODM<br/>26 modèles<br/>Indexation avancée</p>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <h4>🔐 Sécurité</h4>
+          <span class="pill pill-purple">JWT Auth</span>
+          <span class="pill pill-blue">RBAC</span>
+          <span class="pill pill-slate">Rate Limiting</span>
+          <span class="pill pill-slate">bcryptjs</span>
+        </div>
+        <div class="card">
+          <h4>⚡ Temps réel</h4>
+          <span class="pill pill-orange">Socket.io</span>
+          <span class="pill pill-slate">WebSockets</span>
+          <span class="pill pill-slate">Notifications live</span>
+          <span class="pill pill-slate">Planning Poker</span>
+        </div>
+        <div class="card">
+          <h4>📁 Fichiers</h4>
+          <span class="pill pill-green">Multer (upload)</span>
+          <span class="pill pill-teal">PDFKit</span>
+          <span class="pill pill-slate">csv-stringify</span>
+          <span class="pill pill-slate">pdfmake</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 4 — STACK FRONTEND
+  ══════════════════════════════════════════ -->
+  <div class="slide" id="slide-4">
+    <div class="accent-bar"></div>
+    <div class="slide-header">
+      <div class="slide-icon" style="background:#fce7f3;">⚛️</div>
+      <div>
+        <h2>Stack Frontend</h2>
+        <p>Slide 4 / 10 — Interface utilisateur moderne et réactive</p>
+      </div>
+    </div>
+    <div class="slide-body">
+      <div class="grid-2" style="margin-bottom:16px;">
+        <div>
+          <div class="section-label">Framework & Build</div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#ede9fe; font-size:20px;">⚛️</div>
+            <div class="feature-text">
+              <h4>React 18.2</h4>
+              <p>Composants fonctionnels, Context API, React Router 6</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#dbeafe; font-size:20px;">⚡</div>
+            <div class="feature-text">
+              <h4>Vite 5.2</h4>
+              <p>Build ultra-rapide, HMR, proxy API intégré</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#dcfce7; font-size:20px;">🎨</div>
+            <div class="feature-text">
+              <h4>Tailwind CSS 3.4</h4>
+              <p>Utility-first, design system cohérent, responsive</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="section-label">Librairies spécialisées</div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#ffedd5; font-size:20px;">📈</div>
+            <div class="feature-text">
+              <h4>Recharts + ReactFlow</h4>
+              <p>Graphiques interactifs, diagrammes de flux</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#fce7f3; font-size:20px;">📅</div>
+            <div class="feature-text">
+              <h4>FullCalendar 6</h4>
+              <p>Vue calendrier pour réunions et deadlines</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#ccfbf1; font-size:20px;">✍️</div>
+            <div class="feature-text">
+              <h4>TipTap + @dnd-kit</h4>
+              <p>Éditeur riche + Drag & Drop Kanban</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="padding:14px;">
+        <h4>📄 25+ pages • Routing protégé • Composant &lt;Can&gt; (permissions) • Axios • react-hot-toast</h4>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 5 — STACK BACKEND
+  ══════════════════════════════════════════ -->
+  <div class="slide" id="slide-5">
+    <div class="accent-bar"></div>
+    <div class="slide-header">
+      <div class="slide-icon" style="background:#dcfce7;">🟢</div>
+      <div>
+        <h2>Stack Backend</h2>
+        <p>Slide 5 / 10 — API REST robuste et sécurisée</p>
+      </div>
+    </div>
+    <div class="slide-body">
+      <div class="grid-3" style="margin-bottom:16px;">
+        <div class="card">
+          <h4>🚀 Serveur</h4>
+          <div class="feature-item" style="padding:6px 0; border:none;">
+            <div class="feature-text">
+              <h4>Express.js 4.18</h4>
+              <p>28 fichiers de routes REST</p>
+            </div>
+          </div>
+          <div class="feature-item" style="padding:6px 0; border:none;">
+            <div class="feature-text">
+              <h4>Socket.io 4.8</h4>
+              <p>WebSockets temps réel</p>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>🍃 Base de données</h4>
+          <div class="feature-item" style="padding:6px 0; border:none;">
+            <div class="feature-text">
+              <h4>MongoDB + Mongoose</h4>
+              <p>26 modèles de données</p>
+            </div>
+          </div>
+          <div class="feature-item" style="padding:6px 0; border:none;">
+            <div class="feature-text">
+              <h4>Index composés</h4>
+              <p>Requêtes optimisées</p>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>🔐 Sécurité</h4>
+          <div class="feature-item" style="padding:6px 0; border:none;">
+            <div class="feature-text">
+              <h4>JWT + bcryptjs</h4>
+              <p>Auth 24h, hash sécurisé</p>
+            </div>
+          </div>
+          <div class="feature-item" style="padding:6px 0; border:none;">
+            <div class="feature-text">
+              <h4>Rate Limiting</h4>
+              <p>10/min auth, 200/min API</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns: repeat(4,1fr); gap:10px;">
+        <div class="stat-box">
+          <div class="num">28</div>
+          <div class="label">Routes API</div>
+        </div>
+        <div class="stat-box">
+          <div class="num">26</div>
+          <div class="label">Modèles Mongoose</div>
+        </div>
+        <div class="stat-box">
+          <div class="num">6</div>
+          <div class="label">Rôles utilisateurs</div>
+        </div>
+        <div class="stat-box">
+          <div class="num">3001</div>
+          <div class="label">Port du serveur</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 6 — FONCTIONNALITÉS : GESTION PROJET
+  ══════════════════════════════════════════ -->
+  <div class="slide" id="slide-6">
+    <div class="accent-bar"></div>
+    <div class="slide-header">
+      <div class="slide-icon" style="background:#ede9fe;">📋</div>
+      <div>
+        <h2>Fonctionnalités — Gestion de Projet</h2>
+        <p>Slide 6 / 10 — Cycle de vie complet des tâches et sprints</p>
+      </div>
+    </div>
+    <div class="slide-body">
+      <div class="grid-2">
+        <div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#ede9fe;">🗂️</div>
+            <div class="feature-text">
+              <h4>Projets & Sprints</h4>
+              <p>Création, suivi de vélocité, planning de sprint avec story points</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#dbeafe;">✅</div>
+            <div class="feature-text">
+              <h4>Tâches & Sous-tâches</h4>
+              <p>7 statuts : BACKLOG → TODO → IN_PROGRESS → IN_REVIEW → TESTING → DONE</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#dcfce7;">🐛</div>
+            <div class="feature-text">
+              <h4>Bug Tracker</h4>
+              <p>4 niveaux de sévérité : CRITICAL, HIGH, MEDIUM, LOW</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#ffedd5;">🏁</div>
+            <div class="feature-text">
+              <h4>Milestones</h4>
+              <p>Jalons de projet avec livrables et suivi de progression</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#fce7f3;">🎯</div>
+            <div class="feature-text">
+              <h4>Kanban Board</h4>
+              <p>Glisser-déposer des tâches entre colonnes (dnd-kit)</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#ccfbf1;">📅</div>
+            <div class="feature-text">
+              <h4>Gantt & Calendrier</h4>
+              <p>Timeline interactive, vue calendrier des réunions</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#f1f5f9;">🃏</div>
+            <div class="feature-text">
+              <h4>Planning Poker</h4>
+              <p>Sessions d'estimation collaboratives en temps réel</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#fef9c3;">⚠️</div>
+            <div class="feature-text">
+              <h4>Gestion des Risques</h4>
+              <p>Registre des risques, probabilité × impact, plan de mitigation</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 7 — FONCTIONNALITÉS : COLLABORATION
+  ══════════════════════════════════════════ -->
+  <div class="slide" id="slide-7">
+    <div class="accent-bar"></div>
+    <div class="slide-header">
+      <div class="slide-icon" style="background:#dcfce7;">👥</div>
+      <div>
+        <h2>Fonctionnalités — Collaboration & Qualité</h2>
+        <p>Slide 7 / 10 — Travailler ensemble et garantir la qualité</p>
+      </div>
+    </div>
+    <div class="slide-body">
+      <div class="grid-2">
+        <div>
+          <div class="section-label">Collaboration</div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#dbeafe;">💬</div>
+            <div class="feature-text">
+              <h4>Commentaires & @Mentions</h4>
+              <p>Discussion par tâche avec mentions d'équipiers</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#ede9fe;">🔔</div>
+            <div class="feature-text">
+              <h4>Notifications temps réel</h4>
+              <p>Alertes live via Socket.io pour assignations, bugs critiques</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#dcfce7;">🤝</div>
+            <div class="feature-text">
+              <h4>Réunions structurées</h4>
+              <p>Standup, Sprint Review, Rétrospective avec ordre du jour</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#fce7f3;">⏱️</div>
+            <div class="feature-text">
+              <h4>Time Tracking</h4>
+              <p>Journaux d'heures par tâche et par développeur</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="section-label">Qualité</div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#ffedd5;">🧪</div>
+            <div class="feature-text">
+              <h4>Plans de test</h4>
+              <p>Test cases manuels/automatisés, cycles d'exécution</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#ccfbf1;">🔍</div>
+            <div class="feature-text">
+              <h4>Code Review</h4>
+              <p>Checklists de révision avec scoring pass/fail</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#fef9c3;">📐</div>
+            <div class="feature-text">
+              <h4>Métriques de code</h4>
+              <p>Complexité cyclomatique, LOC, couverture, maintenabilité</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#f1f5f9;">📝</div>
+            <div class="feature-text">
+              <h4>Audit Log</h4>
+              <p>Traçabilité complète de toutes les actions (CRUD)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 8 — REPORTING & DOCUMENTS
+  ══════════════════════════════════════════ -->
+  <div class="slide" id="slide-8">
+    <div class="accent-bar"></div>
+    <div class="slide-header">
+      <div class="slide-icon" style="background:#ffedd5;">📊</div>
+      <div>
+        <h2>Reporting & Documentation</h2>
+        <p>Slide 8 / 10 — Visualisation des données et génération de documents</p>
+      </div>
+    </div>
+    <div class="slide-body">
+      <div class="grid-2" style="margin-bottom:16px;">
+        <div class="card">
+          <h4>📊 Tableaux de bord</h4>
+          <div class="feature-item" style="padding:8px 0; border:none;">
+            <div class="feature-icon" style="background:#ede9fe; font-size:16px;">📈</div>
+            <div class="feature-text"><h4>Dashboard projet</h4><p>Progression tâches, statut bugs, burndown</p></div>
+          </div>
+          <div class="feature-item" style="padding:8px 0; border:none;">
+            <div class="feature-icon" style="background:#dbeafe; font-size:16px;">🗃️</div>
+            <div class="feature-text"><h4>Vue Portfolio</h4><p>Vue multi-projets consolidée</p></div>
+          </div>
+          <div class="feature-item" style="padding:8px 0; border:none;">
+            <div class="feature-icon" style="background:#dcfce7; font-size:16px;">🔬</div>
+            <div class="feature-text"><h4>Métriques de qualité</h4><p>Dashboard dédié aux métriques de code</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>📄 Génération de documents</h4>
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:4px;">
+            <span class="pill pill-purple">📋 Cahier des charges</span>
+            <span class="pill pill-blue">⚙️ Fiche technique</span>
+            <span class="pill pill-green">📌 Fiche fonctionnelle</span>
+            <span class="pill pill-orange">🏃 PV de Sprint</span>
+            <span class="pill pill-pink">🐛 Rapport de bugs</span>
+            <span class="pill pill-teal">⏱️ Rapport de temps</span>
+            <span class="pill pill-slate">🚀 Release Notes</span>
+            <span class="pill pill-slate">✏️ Document custom</span>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="padding:14px 20px;">
+        <h4 style="margin-bottom:10px;">📤 Exports disponibles</h4>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <span class="pill pill-green">📊 CSV — Tâches</span>
+          <span class="pill pill-green">📊 CSV — Bugs</span>
+          <span class="pill pill-green">📊 CSV — Time logs</span>
+          <span class="pill pill-blue">📄 PDF — Documents générés</span>
+          <span class="pill pill-blue">📄 PDF — Rapports complets</span>
+          <span class="pill pill-orange">🔍 Recherche globale full-text</span>
+          <span class="pill pill-purple">🔗 Webhooks intégration externe</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 9 — SÉCURITÉ & RÔLES
+  ══════════════════════════════════════════ -->
+  <div class="slide" id="slide-9">
+    <div class="accent-bar"></div>
+    <div class="slide-header">
+      <div class="slide-icon" style="background:#fce7f3;">🔐</div>
+      <div>
+        <h2>Sécurité & Rôles Utilisateurs</h2>
+        <p>Slide 9 / 10 — Contrôle d'accès basé sur les rôles (RBAC)</p>
+      </div>
+    </div>
+    <div class="slide-body">
+      <div class="grid-2">
+        <div>
+          <div class="section-label">Hiérarchie des rôles (du plus bas au plus élevé)</div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="role-item">
+              <div class="role-dot" style="background:#94a3b8;"></div>
+              <span>CLIENT</span>
+              <small>Lecture seule</small>
+            </div>
+            <div class="role-item">
+              <div class="role-dot" style="background:#22c55e;"></div>
+              <span>QA</span>
+              <small>Tests & bugs</small>
+            </div>
+            <div class="role-item">
+              <div class="role-dot" style="background:#3b82f6;"></div>
+              <span>DEV</span>
+              <small>Tâches & commentaires</small>
+            </div>
+            <div class="role-item">
+              <div class="role-dot" style="background:#f59e0b;"></div>
+              <span>SCRUM MASTER</span>
+              <small>Sprints & équipe</small>
+            </div>
+            <div class="role-item">
+              <div class="role-dot" style="background:#8b5cf6;"></div>
+              <span>PRODUCT OWNER</span>
+              <small>Projets & backlog</small>
+            </div>
+            <div class="role-item">
+              <div class="role-dot" style="background:#ef4444;"></div>
+              <span>ADMIN</span>
+              <small>Accès total</small>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="section-label">Mécanismes de sécurité</div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#ede9fe;">🔑</div>
+            <div class="feature-text">
+              <h4>JWT — JSON Web Token</h4>
+              <p>Authentification stateless, expiration 24h, secret configurable</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#dbeafe;">🔒</div>
+            <div class="feature-text">
+              <h4>bcryptjs — Hash des mots de passe</h4>
+              <p>Chiffrement fort, aucun mot de passe en clair en BDD</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#dcfce7;">🛡️</div>
+            <div class="feature-text">
+              <h4>Rate Limiting</h4>
+              <p>10 req/min sur l'auth, 200 req/min sur l'API générale</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon" style="background:#ffedd5;">🌐</div>
+            <div class="feature-text">
+              <h4>CORS + Middleware RBAC</h4>
+              <p>Contrôle des origines, middleware d'autorisation centralisé</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 10 — CONCLUSION / BILAN
+  ══════════════════════════════════════════ -->
+  <div class="slide" id="slide-10">
+    <div class="accent-bar"></div>
+    <div class="slide-header">
+      <div class="slide-icon" style="background:#ccfbf1;">🏆</div>
+      <div>
+        <h2>Bilan & Réalisations</h2>
+        <p>Slide 10 / 10 — Un projet complet, de bout en bout</p>
+      </div>
+    </div>
+    <div class="slide-body">
+      <div class="conclusion-highlight" style="margin-bottom:20px;">
+        <h3>🚀 DevTrack v2.0 — Plateforme de niveau production</h3>
+        <p>Une solution Agile full-stack couvrant l'intégralité du cycle de développement logiciel</p>
+      </div>
+      <div style="display:grid; grid-template-columns: repeat(4,1fr); gap:10px; margin-bottom:16px;">
+        <div class="stat-box">
+          <div class="num">25+</div>
+          <div class="label">Pages React</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
+        </div>
+        <div class="stat-box">
+          <div class="num">28</div>
+          <div class="label">Routes API REST</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div>
+        </div>
+        <div class="stat-box">
+          <div class="num">26</div>
+          <div class="label">Modèles de données</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:88%"></div></div>
+        </div>
+        <div class="stat-box">
+          <div class="num">8</div>
+          <div class="label">Types de documents</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="card" style="text-align:center;">
+          <div style="font-size:28px;margin-bottom:8px;">⚡</div>
+          <h4 style="font-size:13px; color:#1e293b;">Temps réel</h4>
+          <p style="font-size:12px; color:#64748b;">Socket.io pour collaboration instantanée</p>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:28px;margin-bottom:8px;">🔄</div>
+          <h4 style="font-size:13px; color:#1e293b;">Agile natif</h4>
+          <p style="font-size:12px; color:#64748b;">Scrum complet : sprints, poker, burndown</p>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:28px;margin-bottom:8px;">🛡️</div>
+          <h4 style="font-size:13px; color:#1e293b;">Sécurisé</h4>
+          <p style="font-size:12px; color:#64748b;">JWT, RBAC, rate limiting, audit log</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.slide-wrapper -->
+
+<script>
+  let current = 0;
+  const total = 10;
+
+  const dotsEl   = document.getElementById('dots');
+  const counterEl = document.getElementById('counter');
+
+  // Build dots
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  }
+
+  function goTo(n) {
+    document.getElementById('slide-' + (current + 1)).classList.remove('active');
+    dotsEl.children[current].classList.remove('active');
+    current = (n + total) % total;
+    document.getElementById('slide-' + (current + 1)).classList.add('active');
+    dotsEl.children[current].classList.add('active');
+    counterEl.textContent = (current + 1) + ' / ' + total;
+  }
+
+  function nextSlide() { goTo(current + 1); }
+  function prevSlide() { goTo(current - 1); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextSlide();
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   prevSlide();
+  });
+</script>
+</body>
+</html>

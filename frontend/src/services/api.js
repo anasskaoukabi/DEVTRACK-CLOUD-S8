@@ -61,6 +61,7 @@ export const developersApi = {
   getWorkload: (id) => api.get(`/developers/${id}/workload`).then(r => r.data),
   create: (data) => api.post('/developers', data).then(r => r.data),
   update: (id, d) => api.put(`/developers/${id}`, d).then(r => r.data),
+  resetPassword: (id, password) => api.put(`/developers/${id}/password`, { password }).then(r => r.data),
   delete: (id) => api.delete(`/developers/${id}`).then(r => r.data),
 };
 

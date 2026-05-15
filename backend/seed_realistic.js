@@ -233,7 +233,137 @@ async function seedRealistic() {
       { project_id: p1._id, module_name: 'audit_trail_mixin.py', language: 'Python', source: 'SONARQUBE', loc: 500, sloc: 400, cyclomatic_complexity: 20, maintainability_index: 68, analyzed_by: dev1._id }
     ]);
 
-    console.log('\n🎉 MEGA SEEDING (GITHUB CONVERSATION MAPPING) TERMINÉ AVEC SUCCÈS !');
+    // =========================================================================
+    // ── PROJET 2 : PORTAIL E-GOV MAROC (TÉLÉPAIEMENT TGR) ──
+    // =========================================================================
+    console.log('🚀 Loading Project 2: Portail e-Gov Maroc...');
+
+    // Nouveaux développeurs spécifiques e-Gov
+    const egovDevs = await Developer.create([
+      { name: 'UX/UI Designer (e-Gov)', email: 'ux@egov.ma', password: defaultPassword, role: 'DEV', color: '#ec4899' },
+      { name: 'Security Auditor (CNDP)', email: 'audit@cndp.ma', password: defaultPassword, role: 'QA', color: '#14b8a6' },
+      { name: 'Senior Java Dev', email: 'java@egov.ma', password: defaultPassword, role: 'DEV', color: '#f59e0b' }
+    ]);
+    const uxDev = egovDevs[0];
+    const secQA = egovDevs[1];
+    const javaDev = egovDevs[2];
+
+    const teamEgov = await Team.create({
+      name: 'TGR e-Gov Squad',
+      description: 'Équipe dédiée au développement du portail citoyen pour le paiement des taxes locales.',
+      members: [admin._id, sm._id, po._id, uxDev._id, secQA._id, javaDev._id],
+      scrum_master_id: sm._id,
+      product_owner_id: po._id
+    });
+
+    const p2 = await Project.create({
+      name: 'Portail e-Gov: Télépaiement TGR',
+      description: "Développement d'une plateforme web et mobile sécurisée pour le paiement des taxes locales par les citoyens marocains. Intégration CMI.",
+      status: 'ACTIVE',
+      repository_url: 'https://github.com/tgr-maroc/portail-taxes',
+      team_id: teamEgov._id,
+      start_date: daysAgo(45),
+      target_end_date: daysFromNow(90),
+      budget: 350000
+    });
+
+    // Tags e-Gov
+    const tagsEgovData = [
+      { name: 'Intégration CMI', color: '#2563eb' },
+      { name: 'Sécurité CNDP', color: '#16a34a' },
+      { name: 'UX Citoyen', color: '#d946ef' },
+      { name: 'Backend SpringBoot', color: '#ea580c' },
+      { name: 'Frontend React', color: '#06b6d4' }
+    ];
+    const tagsEgov = {};
+    for (const td of tagsEgovData) {
+      const t = await Tag.create({ ...td, project_id: p2._id });
+      tagsEgov[td.name] = t._id;
+    }
+
+    // Sprints e-Gov
+    const sprintsEgov = await Sprint.create([
+      { project_id: p2._id, name: 'Sprint 1 - UX/UI & Architecture', goal: 'Validation des maquettes et setup du repo SpringBoot', start_date: daysAgo(45), end_date: daysAgo(31), status: 'COMPLETED' },
+      { project_id: p2._id, name: 'Sprint 2 - Intégration CMI (Phase 1)', goal: 'Connexion Sandbox CMI et flux de paiement basique', start_date: daysAgo(30), end_date: daysAgo(16), status: 'COMPLETED' },
+      { project_id: p2._id, name: 'Sprint 3 - Sécurisation & Front-End', goal: 'Chiffrement des données sensibles (CNDP) et intégration React', start_date: daysAgo(15), end_date: daysAgo(1), status: 'COMPLETED' },
+      { project_id: p2._id, name: 'Sprint 4 - Tests de charge & UAT', goal: 'Préparation au lancement pilote', start_date: daysAgo(0), end_date: daysFromNow(14), status: 'ACTIVE' }
+    ]);
+    const [se1, se2, se3, se4] = sprintsEgov;
+
+    // Tâches e-Gov
+    let egovTasks = [];
+    egovTasks.push(
+      // Sprint 1
+      { sprint_id: se1._id, title: 'Conception des maquettes Figma (Mobile-first)', type: 'FEATURE', status: 'DONE', story_points: 8, developer_id: uxDev._id, tag_ids: [tagsEgov['UX Citoyen']] },
+      { sprint_id: se1._id, title: 'Setup architecture SpringBoot & Base de données PostgreSQL', type: 'TECH_TASK', status: 'DONE', story_points: 5, developer_id: javaDev._id, tag_ids: [tagsEgov['Backend SpringBoot']] },
+      
+      // Sprint 2
+      { sprint_id: se2._id, title: 'Implémentation API Gateway pour flux CMI', type: 'FEATURE', status: 'DONE', story_points: 13, developer_id: javaDev._id, tag_ids: [tagsEgov['Intégration CMI'], tagsEgov['Backend SpringBoot']] },
+      { sprint_id: se2._id, title: 'Bug: Sandbox CMI timeout lors du callback', type: 'BUG', status: 'DONE', story_points: 3, developer_id: javaDev._id, tag_ids: [tagsEgov['Intégration CMI']] },
+      
+      // Sprint 3
+      { sprint_id: se3._id, title: 'Développement UI React pour le formulaire de paiement', type: 'FEATURE', status: 'DONE', story_points: 8, developer_id: admin._id, tag_ids: [tagsEgov['Frontend React']] },
+      { sprint_id: se3._id, title: 'Audit sécurité (Conformité CNDP) des données personnelles', type: 'TECH_TASK', status: 'DONE', story_points: 8, developer_id: secQA._id, tag_ids: [tagsEgov['Sécurité CNDP']] },
+      
+      // Sprint 4 (Active)
+      { sprint_id: se4._id, title: 'Optimisation des requêtes BD pour la recherche des taxes', type: 'TECH_TASK', status: 'IN_PROGRESS', story_points: 5, developer_id: javaDev._id, tag_ids: [tagsEgov['Backend SpringBoot']] },
+      { sprint_id: se4._id, title: "Tests d'accessibilité (WCAG) sur le portail", type: 'TECH_TASK', status: 'TODO', story_points: 3, developer_id: uxDev._id, tag_ids: [tagsEgov['UX Citoyen']] },
+      { sprint_id: se4._id, title: 'Simulation de charge (JMeter) sur API Paiement', type: 'FEATURE', status: 'IN_PROGRESS', story_points: 8, developer_id: secQA._id, tag_ids: [tagsEgov['Sécurité CNDP']] }
+    );
+
+    let createdEgovTasks = [];
+    for (const tData of egovTasks) {
+      createdEgovTasks.push(await Task.create({ ...tData, project_id: p2._id }));
+    }
+
+    // TimeLogs (Saisie des temps) pour quelques tâches e-Gov
+    const tLogTask1 = createdEgovTasks.find(t => t.title.includes('Conception des maquettes'));
+    const tLogTask2 = createdEgovTasks.find(t => t.title.includes('Implémentation API Gateway'));
+    if (tLogTask1) {
+      await TimeLog.create([
+        { task_id: tLogTask1._id, developer_id: uxDev._id, hours: 4, description: 'Recherche UX et wireframes' },
+        { task_id: tLogTask1._id, developer_id: uxDev._id, hours: 6, description: 'Design haute fidélité sur Figma' }
+      ]);
+    }
+    if (tLogTask2) {
+      await TimeLog.create([
+        { task_id: tLogTask2._id, developer_id: javaDev._id, hours: 8, description: 'Intégration du SDK CMI' },
+        { task_id: tLogTask2._id, developer_id: javaDev._id, hours: 4, description: 'Gestion des erreurs de transaction' },
+        { task_id: tLogTask2._id, developer_id: admin._id, hours: 2, description: "Revue de code sur l'intégration CMI" }
+      ]);
+    }
+
+    // Milestones
+    await Milestone.create([
+      { project_id: p2._id, name: 'Phase 1: Architecture Validée', description: 'Validation finale des choix techniques et des maquettes avec la TGR.', target_date: daysAgo(30), status: 'COMPLETED' },
+      { project_id: p2._id, name: 'Phase 2: Intégration Bancaire', description: 'Connexion fonctionnelle avec la plateforme CMI en environnement de test.', target_date: daysAgo(10), status: 'COMPLETED' },
+      { project_id: p2._id, name: 'Phase 3: Pilote Région Casa-Settat', description: 'Déploiement limité à la région pour tests réels.', target_date: daysFromNow(20), status: 'UPCOMING' }
+    ]);
+
+    // Code Reviews
+    if (tLogTask2) { // Tâche d'intégration CMI
+      await CodeReview.create({
+        task_id: tLogTask2._id,
+        project_id: p2._id,
+        reviewer_id: admin._id,
+        status: 'APPROVED',
+        items: [
+          { item_text: 'Pas de clés en dur dans le code', category: 'Security', mandatory: true, passed: true },
+          { item_text: 'Tests unitaires présents', category: 'Quality', mandatory: true, passed: true }
+        ],
+        global_comment: 'Très bonne intégration. Le fallback en cas de timeout CMI est robuste.',
+        score: 100,
+        created_by: javaDev._id
+      });
+    }
+
+    // Réunions (Meetings)
+    await Meeting.create([
+      { project_id: p2._id, organizer_id: sm._id, title: 'Sprint 4 Planning', notes: 'Planification des tests de charge et préparation de la phase pilote.', date: daysAgo(1), duration_min: 120, status: 'DONE', attendees: [sm._id, po._id, admin._id, javaDev._id, secQA._id] },
+      { project_id: p2._id, organizer_id: sm._id, title: 'Point Synchronisation CMI', notes: 'Discussion avec les équipes CMI concernant les timeouts réseau en production.', date: daysFromNow(2), duration_min: 60, status: 'SCHEDULED', attendees: [admin._id, javaDev._id] }
+    ]);
+
+    console.log('\n🎉 MEGA SEEDING (GITHUB CONVERSATION MAPPING & E-GOV MAROC) TERMINÉ AVEC SUCCÈS !');
     process.exit(0);
 
   } catch (err) {
